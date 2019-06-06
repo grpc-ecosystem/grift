@@ -37,12 +37,12 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.common.io.ByteStreams;
 import io.grpc.Drainable;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor.Marshaller;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.internal.IoUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -84,7 +84,7 @@ public class ThriftUtilsTest {
   }
 
   @Test
-  public void parseInvalid() throws Exception {
+  public void parseInvalid() {
     InputStream is = new ByteArrayInputStream(new byte[] {-127});
     try {
       marshaller.parse(is);
@@ -96,7 +96,7 @@ public class ThriftUtilsTest {
   }
 
   @Test
-  public void testLarge() throws Exception {
+  public void testLarge() {
     Message m = new Message();
     // list size 80 MB
     m.l = new ArrayList<Integer>(Collections.nCopies(20 * 1024 * 1024, 1000000007));
@@ -138,7 +138,7 @@ public class ThriftUtilsTest {
   @Test
   public void testDrainTo_all() throws Exception {
     Message m = new Message();
-    byte[] bytes = IoUtils.toByteArray(marshaller.stream(m));
+    byte[] bytes = ByteStreams.toByteArray(marshaller.stream(m));
     InputStream is = marshaller.stream(m);
     Drainable d = (Drainable) is;
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -155,7 +155,7 @@ public class ThriftUtilsTest {
     {
       InputStream is = marshaller.stream(m);
       is.read();
-      bytes = IoUtils.toByteArray(is);
+      bytes = ByteStreams.toByteArray(is);
     }
     InputStream is = marshaller.stream(m);
     is.read();
@@ -170,9 +170,8 @@ public class ThriftUtilsTest {
   @Test
   public void testDrainTo_none() throws Exception {
     Message m = new Message();
-    byte[] bytes = IoUtils.toByteArray(marshaller.stream(m));
     InputStream is = marshaller.stream(m);
-    byte[] unused = IoUtils.toByteArray(is);
+    byte[] unused = ByteStreams.toByteArray(is);
     Drainable d = (Drainable) is;
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     assertEquals(0, d.drainTo(baos));

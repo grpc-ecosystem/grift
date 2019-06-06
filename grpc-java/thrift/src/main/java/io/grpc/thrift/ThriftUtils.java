@@ -31,11 +31,11 @@
 
 package io.grpc.thrift;
 
+import com.google.common.io.ByteStreams;
 import io.grpc.ExperimentalApi;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor.Marshaller;
 import io.grpc.Status;
-import io.grpc.internal.IoUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.thrift.TBase;
@@ -59,7 +59,7 @@ public final class ThriftUtils {
       @Override
       public T parse(InputStream stream) {
         try {
-          byte[] bytes = IoUtils.toByteArray(stream);
+          byte[] bytes = ByteStreams.toByteArray(stream);
           TDeserializer deserializer = new TDeserializer();
           T message = factory.newInstance();
           deserializer.deserialize(message, bytes);
